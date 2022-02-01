@@ -1,29 +1,46 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import { Message } from './components/Message';
-// import { Counter } from './components/Counter';
+
 import { Forma } from './components/Forma';
+import { AUTHORS } from './utils/constans';
 
 function App() {
-	const [messageList, setMessageList] = useState([
-		{ text: 'msg1', author: 'Pushkin' },
-		{ text: 'i am Robot', author: 'Robot' },
-	]);
+	const [messageList, setMessageList] = useState([]);
 
 	const handleAddMessage = (text) => {
-		setMessageList((prevMessageList) => [...prevMessageList, text]);
+		const newMessage = {
+			text,
+			author: AUTHORS.ME,
+		};
+		setMessageList((prevMessageList) => [...prevMessageList, newMessage]);
 	};
 
 	useEffect(() => {
+		let timeout;
+		if (messageList[messageList.length - 1]?.author === AUTHORS.ME) {
+			timeout = setTimeout(() => {
+				const newMessage = {
+					text: 'hey, i follow you!',
+					author: AUTHORS.BOT,
+				};
+				setMessageList((prevMessageList) => [...prevMessageList, newMessage]);
+			}, 1000);
+
+			return () => {
+				clearTimeout(timeout);
+			};
+		}
 		console.log(messageList[messageList.length - 1]);
 	}, [messageList]);
 
 	return (
 		<div className="App">
 			<header className="App-header">
-				{messageList.map((text) => (
-					<Message text={text} />
+				{messageList.map((message) => (
+					<Message text={message.text} author={message.author} />
 				))}
+
 				<Forma onSubmit={handleAddMessage} />
 			</header>
 		</div>
