@@ -28,6 +28,14 @@
 	color: #61dafb;
 }
 
+.Profile {
+	width: 70px;
+	height: 70px;
+	border-radius: 100%;
+	background-color: #000;
+	margin: 20px auto;
+}
+
 @keyframes App-logo-spin {
 	from {
 		transform: rotate(0deg);
