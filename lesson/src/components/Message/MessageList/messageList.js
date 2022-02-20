@@ -1,11 +1,9 @@
-// import { useEffect } from 'react';
-import { Message } from '../index.js';
+import { Message } from '../Message';
 
-export const MessageList = ({ message }) =>
-	message.map((message) => (
-		<Message
-			key={message.id}
-			messagetext={message.text}
-			author={message.author}
-		/>
+export const MessageList = ({ messages }) => {
+	return messages.map((message) => (
+		<div key={message.id}>
+			<Message text={message.text} author={message.author} />
+		</div>
 	));
+};

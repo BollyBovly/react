@@ -1,73 +1,58 @@
-import { useEffect, useState } from 'react';
-import { createTheme, ThemeProvider } from '@mui/material';
-import { green, pink } from '@mui/material/colors';
-import { AUTHORS } from '../../utils/constans';
-import { FormMui } from '../../formMui/indexMui';
-import { MessageList } from '../Message/MessageList/messageList';
+import React, { useState, useEffect, useRef } from 'react';
+import { AUTHORS } from '../../utils/constants';
+import { MessageList } from '../MessageList';
+import { FormMui, FormWithLogger } from '../FormMui';
+import { ChatList } from '../ChatList';
+import { Navigate, useNavigate, useParams } from 'react-router';
+
 import '../../App.css';
-import { ChatList } from '../ChatList/chatList';
-import { useParams } from 'react-router';
 
-const theme = createTheme({
-	palette: {
-		primary: {
-			main: pink[500],
-		},
-		secondary: {
-			main: green[500],
-		},
-	},
-});
+export function Chat({ messages, addMessage }) {
+	const params = useParams();
+	const { chatId } = params;
 
-const chats = [{ id: 'chat1' }];
-const message = {
-	chat1: [],
-};
-
-function Chat() {
-	const [messageList, setMessageList] = useState([]);
-	const { ChatId } = useParams();
+	const messagesEnd = useRef();
 
 	const handleAddMessage = (text) => {
 		sendMessage(text, AUTHORS.ME);
 	};
 
 	const sendMessage = (text, author) => {
-		const newMessage = {
+		const newMsg = {
 			text,
 			author,
-			id: `msg${Date.now()}`,
+			id: `msg-${Date.now()}`,
 		};
-		setMessageList((prevMessageList) => ({
-			...prevMessageList,
-			[ChatId]: [...prevMessageList[ChatId], newMessage],
-		}));
+		addMessage(chatId, newMsg);
 	};
 
 	useEffect(() => {
+		messagesEnd.current?.scrollIntoView();
+
 		let timeout;
 		if (
-			messageList[ChatId][messageList[ChatId].length - 1]?.author === AUTHORS.ME
+			messages[chatId]?.[messages[chatId]?.length - 1]?.author === AUTHORS.ME
 		) {
 			timeout = setTimeout(() => {
-				sendMessage('i follow you', AUTHORS.BOT);
+				sendMessage('still here', AUTHORS.BOT);
 			}, 1000);
 		}
 
 		return () => clearTimeout(timeout);
-	}, [messageList]);
+	}, [messages]);
+
+	if (!messages[chatId]) {
+		return <Navigate to="/chats" replace />;
+	}
 
 	return (
-		<ThemeProvider theme={theme}>
-			<div className="App">
-				<ChatList />
-				<div className="App-header">
-					<MessageList message={messageList[ChatId]} />
+		<div className="App">
+			<div>
+				<div className="App-content">
+					<MessageList messages={messages[chatId]} />
 				</div>
-				<FormMui submit={handleAddMessage} />
+				<FormWithLogger messageColor="yellow" onSubmit={handleAddMessage} />
 			</div>
-		</ThemeProvider>
+		</div>
 	);
 }
-
-export default Chat;

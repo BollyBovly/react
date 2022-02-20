@@ -1,23 +1,95 @@
-import '../../App.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { changeShowName } from '../../Store/profile-redux/action';
-import { store } from '../Store/index';
+import { useContext } from 'react';
+import { connect, useDispatch, useSelector, shallowEqual } from 'react-redux';
+import {
+	changeShowName,
+	CHANGE_NAME,
+	changeName,
+} from '../../store/profile/actions';
+import { selectName, selectShowName } from '../../store/profile/selectors';
+import { ThemeContext } from '../../utils/ThemeContext';
+import { Form } from '../Form';
 
 export const Profile = () => {
-	const dispatch = useDispatch();
-	const data = useSelector((state) => state);
-	console.log(data);
+	const { setMessageColor } = useContext(ThemeContext);
 
-	const handleChangeShown = () => {
+	const dispatch = useDispatch();
+	// const { showName, name } = useSelector((state) => state);
+	const showName = useSelector(selectShowName, shallowEqual);
+	const name = useSelector(selectName);
+
+	const handleChangeShowName = () => {
 		dispatch(changeShowName);
+	};
+
+	const handleClick = () => {
+		setMessageColor((prevColor) => (prevColor === 'red' ? 'blue' : 'red'));
+	};
+
+	const handleChangeName = (text) => {
+		dispatch(changeName(text));
 	};
 
 	return (
 		<>
-			<div className="Profile"></div>
-
-			{data.showName && <span> {data.name}</span>}
-			<button onClick={handleChangeShown}>Change show name</button>
+			<h3>Profile</h3>
+			<div>
+				<button onClick={handleClick}>Change theme</button>
+			</div>
+			<div>
+				{showName && <span>{name}</span>}
+				<input type="checkbox" />
+				<button onClick={handleChangeShowName}>Change show name</button>
+			</div>
+			<Form onSubmit={handleChangeName} />
 		</>
 	);
 };
+
+export const ProfileToConnect = ({ showName, name, setName, setShowName }) => {
+	const { setMessageColor } = useContext(ThemeContext);
+
+	const handleChangeShowName = () => {
+		// dispatch(changeShowName);
+		setShowName();
+	};
+
+	const handleClick = () => {
+		setMessageColor((prevColor) => (prevColor === 'red' ? 'blue' : 'red'));
+	};
+
+	const handleChangeName = (text) => {
+		// dispatch(changeName(text));
+		setName(text);
+	};
+
+	return (
+		<>
+			<h3>Profile</h3>
+			<div>
+				<button onClick={handleClick}>Change theme</button>
+			</div>
+			<div>
+				{showName && <span>{name}</span>}
+				<input type="checkbox" />
+				<button onClick={handleChangeShowName}>Change show name</button>
+			</div>
+			<Form onSubmit={handleChangeName} />
+		</>
+	);
+};
+
+const mapStateToProps = (state) => ({
+	showName: selectShowName(state),
+	name: selectName(state),
+});
+
+const mapDispatchToProps = {
+	setShowName: () => changeShowName,
+	setName: changeName,
+};
+
+const ConnectedProfile = connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(ProfileToConnect);
+export default ConnectedProfile;
